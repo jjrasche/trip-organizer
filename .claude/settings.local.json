@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(firebase --version:*)",
+      "Bash(npm install)",
+      "Bash(npx firebase login:*)",
+      "Bash(npx firebase login:ci)",
+      "Bash(npm run dev:*)",
+      "Bash(node test-ai.js:*)",
+      "WebSearch",
+      "WebFetch(domain:firebase.google.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(cat:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm install:*)",
+      "Bash(npx playwright install chromium)",
+      "Bash(npm run test:debug:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
