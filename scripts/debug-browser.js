@@ -36,8 +36,8 @@ async function debugBrowser() {
   });
 
   try {
-    console.log('📱 Navigating to http://localhost:3001...\n');
-    await page.goto('http://localhost:3001', { waitUntil: 'networkidle' });
+    console.log('📱 Navigating to http://localhost:3000...\n');
+    await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded', timeout: 10000 });
 
     // Wait a moment for React to render
     await page.waitForTimeout(2000);

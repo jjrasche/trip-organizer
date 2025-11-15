@@ -63,33 +63,42 @@ export async function createTrip(
     const tripRef = doc(collection(db, TRIPS_COLLECTION));
     const tripId = tripRef.id;
 
+    // Note: serverTimestamp() cannot be used inside arrays
+    // Use Timestamp.now() instead
     const creatorParticipant: Participant = {
       userId,
       phoneNumber: userPhone,
       displayName: userDisplayName,
       role: 'owner',
-      joinedAt: serverTimestamp() as any,
+      joinedAt: Timestamp.now(),
     };
 
-    const newTrip: Trip = {
+    // Build trip object, excluding undefined fields (Firestore doesn't allow undefined)
+    const newTrip: any = {
       tripId,
       title: tripData.title,
-      description: tripData.description,
+      description: tripData.description || '',
       startDate: tripData.startDate,
       endDate: tripData.endDate,
       participants: [creatorParticipant],
       days: [],
-      coverImageUrl: tripData.coverImageUrl,
       createdBy: userId,
-      createdAt: serverTimestamp() as any,
-      updatedAt: serverTimestamp() as any,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
       settings: {
         currency: tripData.settings?.currency || 'USD',
         timezone: tripData.settings?.timezone || 'UTC',
         isPublic: tripData.settings?.isPublic || false,
-        shareToken: tripData.settings?.isPublic ? generateShareToken() : undefined,
       },
     };
+
+    // Add optional fields only if they have values
+    if (tripData.coverImageUrl) {
+      newTrip.coverImageUrl = tripData.coverImageUrl;
+    }
+    if (tripData.settings?.isPublic) {
+      newTrip.settings.shareToken = generateShareToken();
+    }
 
     await setDoc(tripRef, newTrip);
 
@@ -134,14 +143,21 @@ export async function getTrip(tripId: string): Promise<Trip | null> {
 export async function getUserTrips(userId: string): Promise<Trip[]> {
   try {
     const tripsRef = collection(db, TRIPS_COLLECTION);
-    const q = query(
+    // Query by createdBy first (simpler query)
+    const createdQuery = query(
       tripsRef,
-      where('participants', 'array-contains', { userId }),
-      orderBy('startDate', 'desc')
+      where('createdBy', '==', userId)
     );
 
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data() as Trip);
+    const createdSnapshot = await getDocs(createdQuery);
+    const trips = createdSnapshot.docs.map((doc) => doc.data() as Trip);
+
+    // TODO: Also query for trips where user is a participant but not creator
+    // This requires a different approach since array-contains with partial objects doesn't work
+    // For now, returning trips created by user
+
+    // Sort by startDate client-side
+    return trips.sort((a, b) => b.startDate.toMillis() - a.startDate.toMillis());
   } catch (error: any) {
     console.error('Error getting user trips:', error);
     throw new Error(`Failed to get user trips: ${error.message}`);
@@ -240,9 +256,10 @@ export async function addParticipant(
       throw new Error('Trip not found');
     }
 
+    // Note: serverTimestamp() cannot be used inside arrays
     const newParticipant: Participant = {
       ...participantData,
-      joinedAt: serverTimestamp() as any,
+      joinedAt: Timestamp.now(),
     };
 
     const tripRef = doc(db, TRIPS_COLLECTION, tripId);
@@ -437,22 +454,38 @@ export async function addActivity(
       throw new Error('Trip not found');
     }
 
-    const newActivity: Activity = {
+    // Note: serverTimestamp() cannot be used inside arrays
+    // Build activity object, excluding undefined fields (Firestore doesn't allow undefined)
+    const newActivity: any = {
       activityId: nanoid(),
       title: activityData.title,
-      description: activityData.description,
       type: activityData.type,
-      startTime: activityData.startTime,
-      endTime: activityData.endTime,
-      location: activityData.location,
-      cost: activityData.cost,
-      notes: activityData.notes,
       attachments: [],
       createdBy: userId,
-      createdAt: serverTimestamp() as any,
+      createdAt: Timestamp.now(),
       updatedBy: userId,
-      updatedAt: serverTimestamp() as any,
+      updatedAt: Timestamp.now(),
     };
+
+    // Add optional fields only if they have values
+    if (activityData.description) {
+      newActivity.description = activityData.description;
+    }
+    if (activityData.startTime) {
+      newActivity.startTime = activityData.startTime;
+    }
+    if (activityData.endTime) {
+      newActivity.endTime = activityData.endTime;
+    }
+    if (activityData.location) {
+      newActivity.location = activityData.location;
+    }
+    if (activityData.cost) {
+      newActivity.cost = activityData.cost;
+    }
+    if (activityData.notes) {
+      newActivity.notes = activityData.notes;
+    }
 
     const updatedDays = trip.days.map((day) =>
       day.dayId === dayId
@@ -502,7 +535,7 @@ export async function updateActivity(
                     ...activity,
                     ...updates,
                     updatedBy: userId,
-                    updatedAt: serverTimestamp() as any,
+                    updatedAt: Timestamp.now(),
                   }
                 : activity
             ),

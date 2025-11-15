@@ -1,0 +1,847 @@
+{
+  "testSuites": [
+    {
+      "suite": "Dashboard Operations",
+      "tests": [
+        {
+          "id": "DASH-001",
+          "description": "User with trips sees dashboard with trip cards",
+          "tags": ["dashboard", "read", "smoke"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "minTrips": 2
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001",
+              "description": "Navigate to application"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips",
+              "timeout": 5000,
+              "description": "Wait for dashboard to load"
+            },
+            {
+              "action": "screenshot",
+              "name": "dashboard-with-trips",
+              "description": "Capture dashboard state"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "[data-testid='trip-card']",
+              "count": 2,
+              "assertion": "equals",
+              "description": "Dashboard shows 2 trip cards"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Test User",
+              "visible": true,
+              "description": "User name is visible"
+            },
+            {
+              "type": "database",
+              "collection": "users",
+              "documentId": "test-user-415-301-8471",
+              "field": "tripIds.length",
+              "value": 2,
+              "assertion": "equals",
+              "description": "User has 2 trips in database"
+            }
+          ]
+        },
+        {
+          "id": "DASH-002",
+          "description": "User with no trips sees empty state",
+          "tags": ["dashboard", "empty-state"],
+          "preconditions": {
+            "user": "empty-user-test",
+            "trips": 0
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "wait",
+              "selector": "text=No trips yet",
+              "timeout": 5000
+            },
+            {
+              "action": "screenshot",
+              "name": "dashboard-empty-state"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=No trips yet",
+              "visible": true,
+              "description": "Empty state message visible"
+            },
+            {
+              "type": "ui",
+              "selector": "button:has-text('Create Your First Trip')",
+              "visible": true,
+              "description": "Create first trip CTA visible"
+            },
+            {
+              "type": "ui",
+              "selector": "[data-testid='trip-card']",
+              "count": 0,
+              "assertion": "equals",
+              "description": "No trip cards visible"
+            }
+          ]
+        },
+        {
+          "id": "DASH-003",
+          "description": "Click on trip card navigates to trip detail",
+          "tags": ["dashboard", "navigation"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "minTrips": 1
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='trip-card']"
+            },
+            {
+              "action": "click",
+              "selector": "[data-testid='trip-card']:has-text('Paris')",
+              "description": "Click Paris trip card"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='back-button']",
+              "timeout": 5000,
+              "description": "Wait for trip detail to load"
+            },
+            {
+              "action": "screenshot",
+              "name": "trip-detail-page"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "h1:has-text('Paris')",
+              "visible": true,
+              "description": "Trip title visible"
+            },
+            {
+              "type": "ui",
+              "selector": "[data-testid='back-button']",
+              "visible": true,
+              "description": "Back button visible"
+            },
+            {
+              "type": "url",
+              "pattern": "trip",
+              "description": "URL should change to trip detail"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "Trip Detail Operations",
+      "tests": [
+        {
+          "id": "TRIP-001",
+          "description": "Trip detail shows all days and activities",
+          "tags": ["trip-detail", "read"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Arrival Day"
+            },
+            {
+              "action": "screenshot",
+              "name": "trip-detail-full-view",
+              "fullPage": true
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "button:has-text('Add Activity')",
+              "count": 2,
+              "assertion": "equals",
+              "description": "2 days with Add Activity buttons"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Arrive at CDG Airport",
+              "visible": true,
+              "description": "Activity 1 visible"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Hotel Check-in",
+              "visible": true,
+              "description": "Activity 2 visible"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Visit Eiffel Tower",
+              "visible": true,
+              "description": "Activity 3 visible"
+            },
+            {
+              "type": "database",
+              "collection": "trips",
+              "documentId": "trip-paris-2025",
+              "field": "days.length",
+              "value": 2,
+              "assertion": "equals",
+              "description": "Trip has 2 days in database"
+            },
+            {
+              "type": "database",
+              "collection": "trips",
+              "documentId": "trip-paris-2025",
+              "field": "days[0].activities.length",
+              "value": 2,
+              "assertion": "equals",
+              "description": "Day 1 has 2 activities in database"
+            }
+          ]
+        },
+        {
+          "id": "TRIP-002",
+          "description": "Trip detail shows participant information",
+          "tags": ["trip-detail", "participants"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Participants"
+            },
+            {
+              "action": "screenshot",
+              "name": "trip-participants-section"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=Participants (1)",
+              "visible": true,
+              "description": "Participant count shown"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Test User",
+              "visible": true,
+              "description": "Participant name visible"
+            },
+            {
+              "type": "ui",
+              "selector": "text=owner",
+              "visible": true,
+              "description": "Participant role visible"
+            }
+          ]
+        },
+        {
+          "id": "TRIP-003",
+          "description": "Back button returns to dashboard",
+          "tags": ["trip-detail", "navigation"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='back-button']"
+            },
+            {
+              "action": "click",
+              "selector": "[data-testid='back-button']",
+              "description": "Click back button"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips",
+              "timeout": 5000
+            },
+            {
+              "action": "screenshot",
+              "name": "back-to-dashboard"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=My Trips",
+              "visible": true,
+              "description": "Dashboard header visible"
+            },
+            {
+              "type": "ui",
+              "selector": "[data-testid='trip-card']",
+              "count": 2,
+              "assertion": "greaterThanOrEqual",
+              "description": "Trip cards visible again"
+            }
+          ]
+        },
+        {
+          "id": "TRIP-004",
+          "description": "Trip with no days shows empty state",
+          "tags": ["trip-detail", "empty-state"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-tokyo-2024"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-tokyo-2024']"
+            },
+            {
+              "action": "wait",
+              "selector": "text=No days planned yet"
+            },
+            {
+              "action": "screenshot",
+              "name": "trip-no-days-empty-state"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=No days planned yet",
+              "visible": true,
+              "description": "Empty state message visible"
+            },
+            {
+              "type": "database",
+              "collection": "trips",
+              "documentId": "trip-tokyo-2024",
+              "field": "days.length",
+              "value": 0,
+              "assertion": "equals",
+              "description": "Trip has 0 days in database"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "Activity Display Tests",
+      "tests": [
+        {
+          "id": "ACT-001",
+          "description": "Activity shows time information",
+          "tags": ["activity", "display"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "text=09:30"
+            },
+            {
+              "action": "screenshot",
+              "name": "activity-with-time"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=⏰",
+              "visible": true,
+              "description": "Time icon visible"
+            },
+            {
+              "type": "ui",
+              "selector": "text=09:30",
+              "visible": true,
+              "description": "Start time visible"
+            },
+            {
+              "type": "ui",
+              "selector": "text=10:00",
+              "visible": true,
+              "description": "End time visible"
+            }
+          ]
+        },
+        {
+          "id": "ACT-002",
+          "description": "Activity shows location information",
+          "tags": ["activity", "display"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Charles de Gaulle Airport"
+            },
+            {
+              "action": "screenshot",
+              "name": "activity-with-location"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=📍",
+              "visible": true,
+              "description": "Location icon visible"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Charles de Gaulle Airport",
+              "visible": true,
+              "description": "Location name visible"
+            }
+          ]
+        },
+        {
+          "id": "ACT-003",
+          "description": "Activity shows description",
+          "tags": ["activity", "display"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Flight lands at 9:30 AM"
+            },
+            {
+              "action": "screenshot",
+              "name": "activity-with-description"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=Flight lands at 9:30 AM",
+              "visible": true,
+              "description": "Activity description visible"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "AI Chat Tests",
+      "tests": [
+        {
+          "id": "AI-001",
+          "description": "AI chat button is visible when AI is configured",
+          "tags": ["ai", "ui"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025",
+            "aiConfigured": true
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "button:has-text('🤖')",
+              "timeout": 3000
+            },
+            {
+              "action": "screenshot",
+              "name": "ai-button-visible"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "button:has-text('🤖')",
+              "visible": true,
+              "description": "AI chat button visible"
+            }
+          ]
+        },
+        {
+          "id": "AI-002",
+          "description": "Clicking AI button opens chat panel",
+          "tags": ["ai", "interaction"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025",
+            "aiConfigured": true
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "button:has-text('🤖')"
+            },
+            {
+              "action": "click",
+              "selector": "button:has-text('🤖')",
+              "description": "Click AI chat button"
+            },
+            {
+              "action": "wait",
+              "selector": "text=AI Assistant",
+              "timeout": 3000
+            },
+            {
+              "action": "screenshot",
+              "name": "ai-chat-panel-open"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=AI Assistant",
+              "visible": true,
+              "description": "AI Assistant header visible"
+            },
+            {
+              "type": "ui",
+              "selector": "input[placeholder*='Ask']",
+              "visible": true,
+              "description": "Chat input field visible"
+            },
+            {
+              "type": "ui",
+              "selector": "button:has-text('Send')",
+              "visible": true,
+              "description": "Send button visible"
+            }
+          ]
+        },
+        {
+          "id": "AI-003",
+          "description": "AI chat shows suggestions on first open",
+          "tags": ["ai", "suggestions"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025",
+            "aiConfigured": true
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "click",
+              "selector": "button:has-text('🤖')"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Suggestions for you",
+              "timeout": 5000
+            },
+            {
+              "action": "screenshot",
+              "name": "ai-suggestions-visible"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=Suggestions for you",
+              "visible": true,
+              "description": "Suggestions header visible"
+            },
+            {
+              "type": "ui",
+              "selector": ".bg-primary-50",
+              "count": 3,
+              "assertion": "greaterThanOrEqual",
+              "description": "At least 3 suggestion buttons visible"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "Dark Mode Tests",
+      "tests": [
+        {
+          "id": "DARK-001",
+          "description": "App respects system dark mode preference",
+          "tags": ["dark-mode", "visual"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "colorScheme": "dark"
+          },
+          "steps": [
+            {
+              "action": "setColorScheme",
+              "value": "dark",
+              "description": "Set browser to dark mode"
+            },
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips"
+            },
+            {
+              "action": "screenshot",
+              "name": "dark-mode-dashboard"
+            }
+          ],
+          "verification": [
+            {
+              "type": "css",
+              "selector": "body",
+              "property": "backgroundColor",
+              "value": "rgb(17, 24, 39)",
+              "description": "Body has dark background color"
+            },
+            {
+              "type": "visual",
+              "baseline": "dark-mode-dashboard.png",
+              "description": "Visual regression check for dark mode"
+            }
+          ]
+        },
+        {
+          "id": "DARK-002",
+          "description": "App respects system light mode preference",
+          "tags": ["dark-mode", "visual"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "colorScheme": "light"
+          },
+          "steps": [
+            {
+              "action": "setColorScheme",
+              "value": "light",
+              "description": "Set browser to light mode"
+            },
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips"
+            },
+            {
+              "action": "screenshot",
+              "name": "light-mode-dashboard"
+            }
+          ],
+          "verification": [
+            {
+              "type": "css",
+              "selector": "body",
+              "property": "backgroundColor",
+              "value": "rgb(249, 250, 251)",
+              "description": "Body has light background color"
+            },
+            {
+              "type": "visual",
+              "baseline": "light-mode-dashboard.png",
+              "description": "Visual regression check for light mode"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "Error Handling Tests",
+      "tests": [
+        {
+          "id": "ERR-001",
+          "description": "App shows error state when trip not found",
+          "tags": ["error", "edge-case"],
+          "preconditions": {
+            "user": "test-user-415-301-8471"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "executeScript",
+              "script": "window.location.href = '/trip/invalid-trip-id'",
+              "description": "Navigate to invalid trip URL"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Trip not found",
+              "timeout": 5000
+            },
+            {
+              "action": "screenshot",
+              "name": "error-trip-not-found"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=Trip not found",
+              "visible": true,
+              "description": "Error message visible"
+            },
+            {
+              "type": "ui",
+              "selector": "button:has-text('Back to Dashboard')",
+              "visible": true,
+              "description": "Back to dashboard button visible"
+            }
+          ]
+        },
+        {
+          "id": "ERR-002",
+          "description": "App shows no console errors during normal operation",
+          "tags": ["error", "console"],
+          "preconditions": {
+            "user": "test-user-415-301-8471"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='trip-card']"
+            },
+            {
+              "action": "click",
+              "selector": "[data-testid='trip-card']"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='back-button']"
+            },
+            {
+              "action": "click",
+              "selector": "[data-testid='back-button']"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips"
+            }
+          ],
+          "verification": [
+            {
+              "type": "console",
+              "level": "error",
+              "count": 0,
+              "assertion": "equals",
+              "description": "No console errors during navigation"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "configuration": {
+    "defaultTimeout": 5000,
+    "screenshotDir": "e2e-screenshots/data-driven",
+    "baseUrl": "http://localhost:3001",
+    "browser": {
+      "headless": false,
+      "slowMo": 300,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    }
+  }
+}

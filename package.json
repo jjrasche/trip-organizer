@@ -13,9 +13,20 @@
     "deploy:rules": "firebase deploy --only firestore:rules",
     "deploy:indexes": "firebase deploy --only firestore:indexes",
     "test:browser": "playwright test",
-    "test:debug": "node scripts/debug-browser.js"
+    "test:debug": "node scripts/debug-browser.js",
+    "test:interactive": "node scripts/interactive-test.js",
+    "test:quick": "node scripts/quick-test.js",
+    "test:e2e": "node scripts/e2e-test.js",
+    "test:bdd": "node scripts/e2e-bdd-test.js",
+    "test:crud": "node scripts/e2e-crud-test.js",
+    "test:data": "node scripts/data-driven-test-runner.js",
+    "test:manual": "node scripts/manual-interaction-test.js",
+    "verify:db": "npx tsx scripts/verify-database.ts",
+    "seed": "npx tsx scripts/quick-seed.ts",
+    "clean:data": "npx tsx scripts/clean-test-data.ts"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "firebase": "^11.1.0",
     "nanoid": "^5.0.4",
     "react": "^18.3.1",

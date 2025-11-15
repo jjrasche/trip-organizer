@@ -14,7 +14,21 @@
       "Bash(npx tsx:*)",
       "Bash(npm install:*)",
       "Bash(npx playwright install chromium)",
-      "Bash(npm run test:debug:*)"
+      "Bash(npm run test:debug:*)",
+      "Bash(npm run seed:*)",
+      "Bash(npm run test:interactive:*)",
+      "Bash(npm run test:quick:*)",
+      "Bash(curl -I http://localhost:3001)",
+      "Bash(npm run verify:db:*)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(npm run test:manual:*)",
+      "Bash(node scripts/interactive-explore.js:*)",
+      "Bash(node scripts/test-ai-chat.js:*)",
+      "Bash(npm run test:bdd:*)",
+      "Bash(npm run test:crud:*)",
+      "Bash(npm run test:data:*)",
+      "Bash(npx firebase:*)",
+      "Bash(node scripts/data-driven-test-runner.js:*)"
     ],
     "deny": [],
     "ask": []

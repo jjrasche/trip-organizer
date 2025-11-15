@@ -1,0 +1,99 @@
+{
+  "testSuites": [
+    {
+      "suite": "CREATE Operations",
+      "tests": [
+        {
+          "id": "CREATE-001",
+          "description": "Create new trip with valid data",
+          "tags": ["create", "trip", "crud"],
+          "preconditions": {
+            "user": "test-user-415-301-8471"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001",
+              "description": "Navigate to dashboard"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips",
+              "timeout": 5000
+            },
+            {
+              "action": "click",
+              "selector": "button:has-text('Create Trip')",
+              "description": "Click Create Trip button"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='create-trip-modal']",
+              "timeout": 3000,
+              "description": "Wait for modal to appear"
+            },
+            {
+              "action": "screenshot",
+              "name": "create-trip-modal-open"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='title']",
+              "value": "Test Trip Created by Automation"
+            },
+            {
+              "action": "fill",
+              "selector": "textarea[name='description']",
+              "value": "This trip was created by automated test"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='startDate']",
+              "value": "2025-07-01"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='endDate']",
+              "value": "2025-07-07"
+            },
+            {
+              "action": "screenshot",
+              "name": "create-trip-form-filled"
+            },
+            {
+              "action": "click",
+              "selector": "button[type='submit']",
+              "description": "Submit form"
+            },
+            {
+              "action": "waitForTimeout",
+              "duration": 3000,
+              "description": "Wait for trip creation and navigation"
+            },
+            {
+              "action": "screenshot",
+              "name": "after-submit"
+            }
+          ],
+          "verification": [
+            {
+              "type": "console",
+              "consoleType": "error",
+              "count": 0,
+              "description": "No console errors during trip creation"
+            },
+            {
+              "type": "database",
+              "collection": "users",
+              "documentId": "test-user-415-301-8471",
+              "field": "tripIds.length",
+              "value": 2,
+              "assertion": "greaterThan",
+              "description": "User has more than 2 trips now (trip was created)"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

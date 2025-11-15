@@ -4,22 +4,30 @@ import { User as FirebaseUser } from 'firebase/auth';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import TripDetail from './pages/TripDetail';
+import TestPage from './pages/TestPage';
 
 type ViewState =
   | { type: 'auth' }
   | { type: 'dashboard' }
-  | { type: 'trip'; tripId: string };
+  | { type: 'trip'; tripId: string }
+  | { type: 'test' };
 
 // DEVELOPMENT MODE: Bypass auth with test user
 const DEV_MODE = import.meta.env.DEV;
 const TEST_USER_ID = 'test-user-415-301-8471';
+const USE_TEST_PAGE = false; // Toggle this to bypass Firebase loading
 
 function App() {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<ViewState>({ type: 'auth' });
+  const [view, setView] = useState<ViewState>({ type: USE_TEST_PAGE ? 'test' : 'auth' });
 
   useEffect(() => {
+    if (USE_TEST_PAGE) {
+      setLoading(false);
+      return;
+    }
+
     // DEV MODE: Auto-login with test user
     if (DEV_MODE) {
       // Create a mock Firebase user object
@@ -52,13 +60,17 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600 dark:text-gray-300">Loading...</p>
         </div>
       </div>
     );
+  }
+
+  if (view.type === 'test') {
+    return <TestPage />;
   }
 
   if (!currentUser) {

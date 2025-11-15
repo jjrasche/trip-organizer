@@ -36,7 +36,7 @@ function getModel() {
   }
 
   return getGenerativeModel(ai, {
-    model: 'gemini-2.0-flash-exp',
+    model: 'gemini-1.5-flash',
   });
 }
 
@@ -72,7 +72,17 @@ TRIP DAYS:
       day.activities.forEach((activity) => {
         context += `  - ${activity.title} (${activity.type})`;
         if (activity.startTime) {
-          context += ` at ${activity.startTime.toDate().toLocaleTimeString()}`;
+          // Handle both string times (e.g., "09:30") and Timestamp objects
+          const timeStr = typeof activity.startTime === 'string'
+            ? activity.startTime
+            : activity.startTime.toDate().toLocaleTimeString();
+          context += ` at ${timeStr}`;
+          if (activity.endTime) {
+            const endTimeStr = typeof activity.endTime === 'string'
+              ? activity.endTime
+              : activity.endTime.toDate().toLocaleTimeString();
+            context += ` - ${endTimeStr}`;
+          }
         }
         if (activity.location) {
           context += ` @ ${activity.location.name}`;

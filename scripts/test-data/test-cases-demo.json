@@ -1,0 +1,286 @@
+{
+  "testSuites": [
+    {
+      "suite": "Dashboard Operations - Basic Flow",
+      "tests": [
+        {
+          "id": "DASH-001",
+          "description": "User with trips sees dashboard with trip cards",
+          "tags": ["dashboard", "read", "smoke"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "minTrips": 2
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001",
+              "description": "Navigate to application"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips",
+              "timeout": 5000,
+              "description": "Wait for dashboard to load"
+            },
+            {
+              "action": "screenshot",
+              "name": "dashboard-with-trips",
+              "description": "Capture dashboard state"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "[data-testid='trip-card']",
+              "count": 2,
+              "assertion": "equals",
+              "description": "Dashboard shows 2 trip cards"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Test User",
+              "assertion": "visible",
+              "description": "User name is visible"
+            },
+            {
+              "type": "database",
+              "collection": "users",
+              "documentId": "test-user-415-301-8471",
+              "field": "tripIds.length",
+              "value": 2,
+              "assertion": "equals",
+              "description": "User has 2 trips in database"
+            }
+          ]
+        },
+        {
+          "id": "DASH-003",
+          "description": "Click on trip card navigates to trip detail",
+          "tags": ["dashboard", "navigation"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "minTrips": 1
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='trip-card']",
+              "timeout": 5000
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']",
+              "description": "Click Paris trip card"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='back-button']",
+              "timeout": 5000
+            },
+            {
+              "action": "screenshot",
+              "name": "trip-detail-page"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=Paris Adventure 2025",
+              "assertion": "visible",
+              "description": "Trip title is visible"
+            },
+            {
+              "type": "ui",
+              "selector": "[data-testid='back-button']",
+              "assertion": "visible",
+              "description": "Back button is visible"
+            },
+            {
+              "type": "database",
+              "collection": "trips",
+              "documentId": "trip-paris-2025",
+              "field": "title",
+              "value": "Paris Adventure 2025",
+              "assertion": "equals",
+              "description": "Trip exists in database"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "Trip Detail Operations",
+      "tests": [
+        {
+          "id": "TRIP-001",
+          "description": "Trip detail shows all days and activities",
+          "tags": ["trip-detail", "read"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Arrival Day",
+              "timeout": 5000
+            },
+            {
+              "action": "screenshot",
+              "name": "trip-detail-full-view"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "button:has-text('Add Activity')",
+              "count": 2,
+              "assertion": "equals",
+              "description": "2 days with Add Activity buttons"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Arrival Day",
+              "assertion": "visible",
+              "description": "First day title visible"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Exploring Paris",
+              "assertion": "visible",
+              "description": "Second day title visible"
+            },
+            {
+              "type": "database",
+              "collection": "trips",
+              "documentId": "trip-paris-2025",
+              "field": "days.length",
+              "value": 2,
+              "assertion": "equals",
+              "description": "Trip has 2 days in database"
+            }
+          ]
+        },
+        {
+          "id": "TRIP-003",
+          "description": "Back button returns to dashboard",
+          "tags": ["trip-detail", "navigation"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='back-button']",
+              "timeout": 5000
+            },
+            {
+              "action": "click",
+              "selector": "[data-testid='back-button']",
+              "description": "Click back button"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips",
+              "timeout": 5000
+            },
+            {
+              "action": "screenshot",
+              "name": "back-to-dashboard"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "text=My Trips",
+              "assertion": "visible",
+              "description": "Dashboard title visible"
+            },
+            {
+              "type": "ui",
+              "selector": "[data-testid='trip-card']",
+              "count": 2,
+              "assertion": "equals",
+              "description": "Trip cards visible on dashboard"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "Activity Display",
+      "tests": [
+        {
+          "id": "ACT-001",
+          "description": "Activity shows time and location information",
+          "tags": ["activity", "display"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025']"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Eiffel Tower",
+              "timeout": 5000
+            },
+            {
+              "action": "screenshot",
+              "name": "activity-details"
+            }
+          ],
+          "verification": [
+            {
+              "type": "ui",
+              "selector": "h4:has-text('Visit Eiffel Tower')",
+              "assertion": "visible",
+              "description": "Activity title visible"
+            },
+            {
+              "type": "ui",
+              "selector": "text=10:00 - 12:30",
+              "assertion": "visible",
+              "description": "Activity time visible"
+            },
+            {
+              "type": "ui",
+              "selector": "p:has-text('📍 Eiffel Tower')",
+              "assertion": "visible",
+              "description": "Activity location visible"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

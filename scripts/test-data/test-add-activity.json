@@ -1,0 +1,145 @@
+{
+  "testSuites": [
+    {
+      "suite": "CREATE Operations - Activities",
+      "tests": [
+        {
+          "id": "CREATE-002",
+          "description": "Add new activity to existing trip day",
+          "tags": ["create", "activity", "crud"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025",
+            "note": "Trip has 2 days with 3 existing activities"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001",
+              "description": "Navigate to dashboard"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips",
+              "timeout": 5000
+            },
+            {
+              "action": "click",
+              "selector": "text=Paris Adventure 2025",
+              "description": "Click on Paris trip"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Arrival Day",
+              "timeout": 3000,
+              "description": "Wait for trip detail page to load"
+            },
+            {
+              "action": "screenshot",
+              "name": "trip-detail-before-add"
+            },
+            {
+              "action": "click",
+              "selector": "button:has-text('+ Add Activity') >> nth=0",
+              "description": "Click Add Activity button on first day"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='add-activity-modal']",
+              "timeout": 3000,
+              "description": "Wait for modal to appear"
+            },
+            {
+              "action": "screenshot",
+              "name": "add-activity-modal-open"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='title']",
+              "value": "Test Activity Created by Automation"
+            },
+            {
+              "action": "select",
+              "selector": "select[name='type']",
+              "value": "restaurant"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='startTime']",
+              "value": "19:00"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='endTime']",
+              "value": "21:00"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='location']",
+              "value": "Le Test Restaurant"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='address']",
+              "value": "123 Test Street, Paris"
+            },
+            {
+              "action": "fill",
+              "selector": "textarea[name='description']",
+              "value": "This activity was created by automated test"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='cost']",
+              "value": "75.50"
+            },
+            {
+              "action": "screenshot",
+              "name": "add-activity-form-filled"
+            },
+            {
+              "action": "click",
+              "selector": "button[type='submit']",
+              "description": "Submit form"
+            },
+            {
+              "action": "waitForTimeout",
+              "duration": 2000,
+              "description": "Wait for activity creation and real-time update"
+            },
+            {
+              "action": "screenshot",
+              "name": "after-activity-added"
+            }
+          ],
+          "verification": [
+            {
+              "type": "console",
+              "consoleType": "error",
+              "count": 0,
+              "description": "No console errors during activity creation"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Test Activity Created by Automation",
+              "assertion": "visible",
+              "description": "New activity appears on the page"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Le Test Restaurant",
+              "assertion": "visible",
+              "description": "Activity location is displayed"
+            },
+            {
+              "type": "ui",
+              "selector": "text=19:00 - 21:00",
+              "assertion": "visible",
+              "description": "Activity time is displayed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

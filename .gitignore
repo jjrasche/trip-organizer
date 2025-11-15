@@ -42,3 +42,6 @@ ui-debug.log
 # Testing
 coverage/
 .nyc_output/
+e2e-screenshots/
+*.png
+.caude/

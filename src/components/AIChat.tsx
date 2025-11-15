@@ -82,12 +82,12 @@ export default function AIChat({ trip, currentUser }: AIChatProps) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <span className="text-2xl">🤖</span>
-          <h2 className="text-lg font-semibold text-gray-900">AI Assistant</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">AI Assistant</h2>
         </div>
         <button
           onClick={loadSuggestions}
           disabled={loadingSuggestions}
-          className="text-sm text-primary-600 hover:text-primary-700 disabled:opacity-50"
+          className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50"
         >
           {loadingSuggestions ? 'Loading...' : 'Refresh Suggestions'}
         </button>
@@ -96,13 +96,13 @@ export default function AIChat({ trip, currentUser }: AIChatProps) {
       {/* Suggestions */}
       {suggestions.length > 0 && messages.length === 0 && (
         <div className="mb-4 space-y-2">
-          <p className="text-sm font-medium text-gray-700">Suggestions for you:</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Suggestions for you:</p>
           <div className="space-y-2">
             {suggestions.map((suggestion, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full text-left text-sm p-3 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-lg transition-colors"
+                className="w-full text-left text-sm p-3 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg transition-colors"
               >
                 {suggestion}
               </button>
@@ -123,7 +123,7 @@ export default function AIChat({ trip, currentUser }: AIChatProps) {
                 className={`max-w-[80%] rounded-lg px-4 py-2 ${
                   message.role === 'user'
                     ? 'bg-primary-600 text-white'
-                    : 'bg-gray-100 text-gray-900'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -132,15 +132,15 @@ export default function AIChat({ trip, currentUser }: AIChatProps) {
           ))}
           {loading && (
             <div className="flex justify-start">
-              <div className="bg-gray-100 rounded-lg px-4 py-2">
+              <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2">
                 <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
                   <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"
                     style={{ animationDelay: '0.1s' }}
                   ></div>
                   <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"
                     style={{ animationDelay: '0.2s' }}
                   ></div>
                 </div>
@@ -164,7 +164,7 @@ export default function AIChat({ trip, currentUser }: AIChatProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me anything about this trip..."
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           disabled={loading}
         />
         <button
@@ -177,7 +177,7 @@ export default function AIChat({ trip, currentUser }: AIChatProps) {
       </form>
 
       {messages.length === 0 && suggestions.length === 0 && !loadingSuggestions && (
-        <p className="text-sm text-gray-500 mt-4 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center">
           Start a conversation or ask me anything about your trip!
         </p>
       )}
