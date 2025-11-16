@@ -1,5 +1,7 @@
 # Declarative Test Framework
 
+> **For the complete AI-driven TDD workflow, see [docs/AI_TDD_WORKFLOW.md](../docs/AI_TDD_WORKFLOW.md)**
+
 ## Concept
 
 Tests are **pure data**. You (human or AI) don't write test code - you write test *data objects*.

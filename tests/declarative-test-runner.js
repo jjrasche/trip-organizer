@@ -3,7 +3,7 @@
  *
  * Tests are pure data objects. This runner interprets them and executes UI actions.
  *
- * Run: node tests/declarative-test-runner.example.js
+ * Run: npm run test:declarative
  */
 
 import { chromium } from '@playwright/test';
