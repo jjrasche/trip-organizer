@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { getTrip, subscribeToTrip, addActivity } from '../services/trip.service';
+import { getTrip, subscribeToTrip, addActivity, updateActivity, removeActivity } from '../services/trip.service';
 import { getUser } from '../services/user.service';
 import { sendMessage, generateSuggestions, isAIConfigured } from '../services/ai.service';
-import type { Trip, User, CreateActivityInput } from '../types';
+import type { Trip, User, CreateActivityInput, UpdateActivityInput, Activity } from '../types';
 import AIChat from '../components/AIChat';
 import AddActivityModal from '../components/AddActivityModal';
+import EditActivityModal from '../components/EditActivityModal';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 interface TripDetailProps {
   tripId: string;
@@ -20,6 +22,12 @@ export default function TripDetail({ tripId, userId, onBack }: TripDetailProps) 
   const [showAddActivityModal, setShowAddActivityModal] = useState(false);
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null);
   const [selectedDayTitle, setSelectedDayTitle] = useState<string>('');
+  const [showEditActivityModal, setShowEditActivityModal] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [editingActivityDayId, setEditingActivityDayId] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingActivity, setDeletingActivity] = useState<{activity: Activity, dayId: string} | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -66,6 +74,51 @@ export default function TripDetail({ tripId, userId, onBack }: TripDetailProps) 
     setSelectedDayId(dayId);
     setSelectedDayTitle(dayTitle);
     setShowAddActivityModal(true);
+  };
+
+  const handleEditActivity = async (activityData: UpdateActivityInput) => {
+    if (!editingActivity || !editingActivityDayId) return;
+    try {
+      await updateActivity(tripId, editingActivityDayId, editingActivity.activityId, userId, activityData);
+      // Trip updates automatically via real-time subscription
+      setShowEditActivityModal(false);
+      setEditingActivity(null);
+      setEditingActivityDayId(null);
+    } catch (error) {
+      console.error('Error updating activity:', error);
+      throw error;
+    }
+  };
+
+  const openEditActivityModal = (activity: Activity, dayId: string, dayTitle: string) => {
+    setEditingActivity(activity);
+    setEditingActivityDayId(dayId);
+    setSelectedDayTitle(dayTitle);
+    setShowEditActivityModal(true);
+  };
+
+  const openDeleteConfirm = (activity: Activity, dayId: string) => {
+    setDeletingActivity({ activity, dayId });
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteActivity = async () => {
+    if (!deletingActivity) return;
+
+    setIsDeleting(true);
+    try {
+      await removeActivity(tripId, deletingActivity.dayId, deletingActivity.activity.activityId);
+      console.log('Deleted activity:', deletingActivity.activity.activityId);
+
+      // Trip updates automatically via real-time subscription
+      setShowDeleteConfirm(false);
+      setDeletingActivity(null);
+    } catch (error) {
+      console.error('Error deleting activity:', error);
+      alert('Failed to delete activity. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (loading) {
@@ -275,11 +328,27 @@ export default function TripDetail({ tripId, userId, onBack }: TripDetailProps) 
                               </p>
                             )}
 
-                            {/* Coordination Section */}
-                            <div className="mt-3 text-sm">
+                            {/* Actions Section */}
+                            <div className="mt-3 text-sm flex items-center gap-4">
                               <button className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
                                 💬 Coordinate
                               </button>
+                              {(userRole === 'owner' || userRole === 'editor') && (
+                                <>
+                                  <button
+                                    onClick={() => openEditActivityModal(activity, day.dayId, day.title || `Day ${index + 1}`)}
+                                    className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium"
+                                  >
+                                    ✏️ Edit
+                                  </button>
+                                  <button
+                                    onClick={() => openDeleteConfirm(activity, day.dayId)}
+                                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium"
+                                  >
+                                    🗑️ Delete
+                                  </button>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -324,6 +393,43 @@ export default function TripDetail({ tripId, userId, onBack }: TripDetailProps) 
         }}
         onSubmit={handleAddActivity}
         dayTitle={selectedDayTitle}
+      />
+
+      {/* Edit Activity Modal */}
+      {editingActivity && (
+        <EditActivityModal
+          isOpen={showEditActivityModal}
+          onClose={() => {
+            setShowEditActivityModal(false);
+            setEditingActivity(null);
+            setEditingActivityDayId(null);
+          }}
+          onSubmit={handleEditActivity}
+          activity={editingActivity}
+          dayTitle={selectedDayTitle}
+        />
+      )}
+
+      {/* Delete Activity Confirmation */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setDeletingActivity(null);
+        }}
+        onConfirm={handleDeleteActivity}
+        title="Delete Activity"
+        message={
+          <div>
+            <p className="mb-2">Are you sure you want to delete <strong>{deletingActivity?.activity.title}</strong>?</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              This action cannot be undone.
+            </p>
+          </div>
+        }
+        confirmText="Delete Activity"
+        variant="danger"
+        isProcessing={isDeleting}
       />
     </div>
   );

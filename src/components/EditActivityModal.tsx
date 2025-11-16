@@ -1,11 +1,12 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import Modal from './Modal';
-import type { CreateActivityInput } from '../types';
+import type { Activity, UpdateActivityInput } from '../types';
 
-interface AddActivityModalProps {
+interface EditActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (activityData: CreateActivityInput) => Promise<void>;
+  onSubmit: (activityData: UpdateActivityInput) => Promise<void>;
+  activity: Activity;
   dayTitle?: string;
 }
 
@@ -18,7 +19,7 @@ const activityTypes = [
   { value: 'other', label: '📍 Other', icon: '📍' },
 ];
 
-export default function AddActivityModal({ isOpen, onClose, onSubmit, dayTitle }: AddActivityModalProps) {
+export default function EditActivityModal({ isOpen, onClose, onSubmit, activity, dayTitle }: EditActivityModalProps) {
   const [title, setTitle] = useState('');
   const [type, setType] = useState<'flight' | 'hotel' | 'restaurant' | 'attraction' | 'transport' | 'other'>('other');
   const [startTime, setStartTime] = useState('');
@@ -30,6 +31,22 @@ export default function AddActivityModal({ isOpen, onClose, onSubmit, dayTitle }
   const [costCurrency, setCostCurrency] = useState('USD');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Populate form with activity data when modal opens
+  useEffect(() => {
+    if (isOpen && activity) {
+      setTitle(activity.title);
+      setType(activity.type);
+      setStartTime(activity.startTime || '');
+      setEndTime(activity.endTime || '');
+      setLocationName(activity.location?.name || '');
+      setLocationAddress(activity.location?.address || '');
+      setDescription(activity.description || '');
+      setCostAmount(activity.cost ? String(activity.cost.amount) : '');
+      setCostCurrency(activity.cost?.currency || 'USD');
+      setError('');
+    }
+  }, [isOpen, activity]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -51,7 +68,7 @@ export default function AddActivityModal({ isOpen, onClose, onSubmit, dayTitle }
         location.address = locationAddress.trim();
       }
 
-      const activityData: CreateActivityInput = {
+      const activityData: UpdateActivityInput = {
         title: title.trim(),
         type,
         description: description.trim() || undefined,
@@ -66,39 +83,24 @@ export default function AddActivityModal({ isOpen, onClose, onSubmit, dayTitle }
 
       await onSubmit(activityData);
 
-      // Reset form
-      resetForm();
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to add activity');
+      setError(err.message || 'Failed to update activity');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const resetForm = () => {
-    setTitle('');
-    setType('other');
-    setStartTime('');
-    setEndTime('');
-    setLocationName('');
-    setLocationAddress('');
-    setDescription('');
-    setCostAmount('');
-    setCostCurrency('USD');
-    setError('');
-  };
-
   const handleClose = () => {
     if (!isSubmitting) {
-      resetForm();
+      setError('');
       onClose();
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={`Add Activity${dayTitle ? ` to ${dayTitle}` : ''}`} maxWidth="lg">
-      <form onSubmit={handleSubmit} data-testid="add-activity-modal">
+    <Modal isOpen={isOpen} onClose={handleClose} title={`Edit Activity${dayTitle ? ` in ${dayTitle}` : ''}`} maxWidth="lg">
+      <form onSubmit={handleSubmit} data-testid="edit-activity-modal">
         <div className="space-y-4">
           {/* Title */}
           <div>
@@ -303,7 +305,7 @@ export default function AddActivityModal({ isOpen, onClose, onSubmit, dayTitle }
               className="btn-primary"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Adding...' : 'Add Activity'}
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>

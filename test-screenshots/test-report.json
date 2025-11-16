@@ -1,0 +1,26 @@
+{
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 5302,
+    "timestamp": "2025-11-15T19:12:03.479Z"
+  },
+  "results": {
+    "passed": [
+      {
+        "id": "UPDATE-002",
+        "description": "Edit existing activity details",
+        "tags": [
+          "update",
+          "activity",
+          "crud"
+        ],
+        "duration": 0
+      }
+    ],
+    "failed": [],
+    "skipped": []
+  }
+}

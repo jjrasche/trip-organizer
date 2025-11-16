@@ -1,0 +1,114 @@
+{
+  "testSuites": [
+    {
+      "suite": "UPDATE Operations - Activities",
+      "tests": [
+        {
+          "id": "UPDATE-002",
+          "description": "Edit existing activity details",
+          "tags": ["update", "activity", "crud"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025",
+            "note": "Trip has activities including 'Test Activity Created by Automation'"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001",
+              "description": "Navigate to dashboard"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips",
+              "timeout": 5000
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025'] button:has-text('View Trip')",
+              "description": "Click View Trip button for Paris trip"
+            },
+            {
+              "action": "wait",
+              "selector": "text=Arrival Day",
+              "timeout": 5000,
+              "description": "Wait for trip detail page to load"
+            },
+            {
+              "action": "screenshot",
+              "name": "trip-detail-before-edit"
+            },
+            {
+              "action": "click",
+              "selector": "button:has-text('✏️ Edit') >> nth=2",
+              "description": "Click Edit button for test activity (3rd edit button)"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='edit-activity-modal']",
+              "timeout": 3000,
+              "description": "Wait for edit modal to appear"
+            },
+            {
+              "action": "screenshot",
+              "name": "edit-activity-modal-open"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='title']",
+              "value": "Test Activity - EDITED"
+            },
+            {
+              "action": "fill",
+              "selector": "textarea[name='description']",
+              "value": "This activity was edited by automated test"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='cost']",
+              "value": "125.75"
+            },
+            {
+              "action": "screenshot",
+              "name": "edit-activity-form-filled"
+            },
+            {
+              "action": "click",
+              "selector": "button[type='submit']",
+              "description": "Submit form"
+            },
+            {
+              "action": "waitForTimeout",
+              "duration": 2000,
+              "description": "Wait for activity update and real-time sync"
+            },
+            {
+              "action": "screenshot",
+              "name": "after-activity-edited"
+            }
+          ],
+          "verification": [
+            {
+              "type": "console",
+              "consoleType": "error",
+              "count": 0,
+              "description": "No console errors during activity edit"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Test Activity - EDITED",
+              "assertion": "visible",
+              "description": "Updated activity title appears on page"
+            },
+            {
+              "type": "ui",
+              "selector": "text=This activity was edited by automated test",
+              "assertion": "visible",
+              "description": "Updated description is displayed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -21,6 +21,7 @@
     "test:crud": "node scripts/e2e-crud-test.js",
     "test:data": "node scripts/data-driven-test-runner.js",
     "test:manual": "node scripts/manual-interaction-test.js",
+    "test:harness": "node scripts/tests/crud.test.js",
     "verify:db": "npx tsx scripts/verify-database.ts",
     "seed": "npx tsx scripts/quick-seed.ts",
     "clean:data": "npx tsx scripts/clean-test-data.ts"

@@ -1,0 +1,100 @@
+{
+  "testSuites": [
+    {
+      "suite": "UPDATE Operations - Trips",
+      "tests": [
+        {
+          "id": "UPDATE-001",
+          "description": "Edit existing trip details",
+          "tags": ["update", "trip", "crud"],
+          "preconditions": {
+            "user": "test-user-415-301-8471",
+            "trip": "trip-paris-2025"
+          },
+          "steps": [
+            {
+              "action": "navigate",
+              "target": "http://localhost:3001",
+              "description": "Navigate to dashboard"
+            },
+            {
+              "action": "wait",
+              "selector": "text=My Trips",
+              "timeout": 5000
+            },
+            {
+              "action": "screenshot",
+              "name": "dashboard-before-edit"
+            },
+            {
+              "action": "click",
+              "selector": "[data-trip-id='trip-paris-2025'] button:has-text('Edit')",
+              "description": "Click Edit button on Paris trip"
+            },
+            {
+              "action": "wait",
+              "selector": "[data-testid='edit-trip-modal']",
+              "timeout": 3000,
+              "description": "Wait for edit modal to appear"
+            },
+            {
+              "action": "screenshot",
+              "name": "edit-trip-modal-open"
+            },
+            {
+              "action": "fill",
+              "selector": "input[name='title']",
+              "value": "Paris Adventure 2025 - UPDATED"
+            },
+            {
+              "action": "fill",
+              "selector": "textarea[name='description']",
+              "value": "This trip description was updated by automated test"
+            },
+            {
+              "action": "screenshot",
+              "name": "edit-trip-form-filled"
+            },
+            {
+              "action": "click",
+              "selector": "button[type='submit']",
+              "description": "Submit form"
+            },
+            {
+              "action": "waitForTimeout",
+              "duration": 2000,
+              "description": "Wait for trip update"
+            },
+            {
+              "action": "screenshot",
+              "name": "after-trip-updated"
+            }
+          ],
+          "verification": [
+            {
+              "type": "console",
+              "consoleType": "error",
+              "count": 0,
+              "description": "No console errors during trip edit"
+            },
+            {
+              "type": "ui",
+              "selector": "text=Paris Adventure 2025 - UPDATED",
+              "assertion": "visible",
+              "description": "Updated trip title appears on dashboard"
+            },
+            {
+              "type": "database",
+              "collection": "trips",
+              "documentId": "trip-paris-2025",
+              "field": "title",
+              "value": "Paris Adventure 2025 - UPDATED",
+              "assertion": "equals",
+              "description": "Trip title updated in database"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

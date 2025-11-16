@@ -28,7 +28,8 @@
       "Bash(npm run test:crud:*)",
       "Bash(npm run test:data:*)",
       "Bash(npx firebase:*)",
-      "Bash(node scripts/data-driven-test-runner.js:*)"
+      "Bash(node scripts/data-driven-test-runner.js:*)",
+      "Bash(node scripts/tests/complete-crud.test.js:*)"
     ],
     "deny": [],
     "ask": []
