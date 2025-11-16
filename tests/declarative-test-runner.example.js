@@ -131,7 +131,7 @@ class DeclarativeTestRunner {
   }
 
   async setup() {
-    this.browser = await chromium.launch({ headless: false });
+    this.browser = await chromium.launch({ headless: true });
     this.page = await this.browser.newPage();
     this.app = new Application(this.page);
 
